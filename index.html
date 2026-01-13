@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbearia Aero 💈</title>
+    <title>Barbearia Aero | Agendamento 💈</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --bg: #f4f7f6; --card: #ffffff; --text: #333; --accent: #2c3e50; --wpp: #25d366; --border: #ddd; --error: #e74c3c; }
@@ -35,6 +35,7 @@
         .btn-block { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
         
         .dia-semana { font-size: 11px; font-weight: normal; opacity: 0.7; margin-top: 4px; text-transform: capitalize; }
+        .prof-info { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body data-theme="light">
@@ -61,12 +62,14 @@
 
         <div id="etapa2" class="hidden">
             <button onclick="back(1)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <span class="prof-info" id="prof-selecionado-dia"></span>
             <h3>Selecione o Dia:</h3>
             <div id="dias-grid" class="grid"></div>
         </div>
 
         <div id="etapa3" class="hidden">
             <button onclick="back(2)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <span class="prof-info" id="prof-selecionado-hora"></span>
             <h3>Horários para: <br><span id="label-dia" style="color:var(--accent)"></span></h3>
             <div id="horas-grid" class="grid"></div>
         </div>
@@ -144,6 +147,13 @@
             state = {...state, ...d};
             document.querySelectorAll('.container > div').forEach(div => div.id && div.classList.add('hidden'));
             document.getElementById('etapa' + step).classList.remove('hidden');
+            
+            if(state.prof) {
+                const info = `Profissional: ${state.prof}`;
+                document.getElementById('prof-selecionado-dia').innerText = info;
+                document.getElementById('prof-selecionado-hora').innerText = info;
+            }
+
             if(step === 2) renderDias();
             if(step === 3) renderHoras();
         }
@@ -189,7 +199,7 @@
 
         function openModal(h) {
             state.hora = h;
-            document.getElementById('m-desc').innerText = `Barbeiro: ${state.prof}\nData: ${state.data}\nHorário: ${h}`;
+            document.getElementById('m-desc').innerText = `Profissional: ${state.prof}\nData: ${state.data}\nHorário: ${h}`;
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -225,10 +235,8 @@
             const dInput = document.getElementById('adm-data').value;
             const h = document.getElementById('adm-hora').value;
             if(!dInput) return alert("Escolha uma data!");
-            
             const dArray = dInput.split('-');
             const df = `${dArray[2]}/${dArray[1]}/${dArray[0]}`;
-
             const { error } = await _supabase.from('agendamentos').insert([{ profissional: p, data: df, horario: h, cliente: "BLOQUEADO", telefone: "(00) 00000-0000" }]);
             if(!error) { alert("Horário Bloqueado!"); carregarListaAdmin(); }
         }
@@ -239,7 +247,7 @@
             const lista = document.getElementById('lista-cliente');
             lista.innerHTML = '';
             data?.forEach(item => {
-                lista.innerHTML += `<div class="admin-item"><b>${item.data} às ${item.horario}</b><br>Prof: ${item.profissional}<br><button class="btn-cancelar" onclick="cancelarID(${item.id})">Cancelar</button></div>`;
+                lista.innerHTML += `<div class="admin-item"><b>${item.data} às ${item.horario}</b><br>Profissional: ${item.profissional}<br><button class="btn-cancelar" onclick="cancelarID(${item.id})">Cancelar</button></div>`;
             });
         }
 
