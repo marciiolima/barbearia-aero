@@ -1,118 +1,190 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barbearia Aero</title>
-  <style>
-    /* CSS IGUAL AO ANTERIOR COM MODO DARK/LIGHT */
-    :root { --bg-body: #f4f7f6; --bg-card: #ffffff; --text-color: #333; --border-color: #ddd; --accent-color: #2c3e50; --success: #27ae60; --error: #e74c3c; }
-    [data-theme="dark"] { --bg-body: #121212; --bg-card: #1e1e1e; --text-color: #e0e0e0; --border-color: #333; --accent-color: #bb86fc; --success: #03dac6; --error: #cf6679; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; transition: 0.3s; }
-    .container { background: var(--bg-card); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid var(--border-color); }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-    .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; }
-    .btn-hora.ocupado { background: #eee !important; color: #aaa !important; cursor: not-allowed; }
-    [data-theme="dark"] .btn-hora.ocupado { background: #333 !important; color: #666 !important; }
-    .hidden { display: none; }
-    input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-color); box-sizing: border-box; }
-    .theme-toggle { position: absolute; top: 15px; right: 15px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 8px; border-radius: 50%; cursor: pointer; z-index: 1001; }
-    .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; }
-    .modal-content { background: var(--bg-card); padding: 25px; border-radius: 10px; width: 300px; text-align:center; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia Aero 💈</title>
+    <style>
+        :root { --bg-body: #f4f7f6; --bg-card: #ffffff; --text-color: #333; --border-color: #ddd; --accent-color: #2c3e50; --success: #27ae60; --error: #e74c3c; }
+        [data-theme="dark"] { --bg-body: #121212; --bg-card: #1e1e1e; --text-color: #e0e0e0; --border-color: #333; --accent-color: #bb86fc; --success: #03dac6; --error: #cf6679; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; box-sizing: border-box; transition: 0.3s; }
+        .theme-toggle { position: absolute; top: 15px; right: 15px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 8px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 1001; }
+        .container { background: var(--bg-card); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid var(--border-color); }
+        h1, h2 { text-align: center; color: var(--accent-color); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; transition: 0.2s; }
+        .btn-hora.ocupado { background: #eee !important; color: #aaa !important; cursor: not-allowed; border-color: #ddd; }
+        [data-theme="dark"] .btn-hora.ocupado { background: #333 !important; color: #666 !important; }
+        .hidden { display: none; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-color); font-size: 16px; box-sizing: border-box; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-content { background: var(--bg-card); padding: 25px; border-radius: 10px; width: 320px; text-align:center; color: var(--text-color); }
+        .btn-voltar { background: none; border: none; color: var(--accent-color); cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
 
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
-  <div class="container">
-    <div id="etapa1">
-      <h1>Barbearia Aero 💈</h1>
-      <div class="grid">
-        <div class="card" onclick="selecionarProf('Fabio Garcia')">💈 Fabio Garcia</div>
-        <div class="card" onclick="selecionarProf('Profissional 2')">✂️ Profissional 2</div>
-        <button style="grid-column: span 2; margin-top:15px; cursor:pointer" onclick="abrirBusca()">📅 Ver / Cancelar</button>
-      </div>
-    </div>
+    <div class="container">
+        <div id="etapa1">
+            <h1>Barbearia Aero 💈</h1>
+            <div class="grid">
+                <div class="card" onclick="selecionarProf('Fabio Garcia')">💈 Fabio Garcia</div>
+                <div class="card" onclick="selecionarProf('Profissional 2')">✂️ Profissional 2</div>
+                <div class="card" onclick="selecionarProf('Profissional 3')">✂️ Profissional 3</div>
+                <div class="card" onclick="selecionarProf('Profissional 4')">✂️ Profissional 4</div>
+                <div class="card" onclick="selecionarProf('Profissional 5')">✂️ Profissional 5</div>
+                <button style="grid-column: span 2; margin-top:15px; padding:10px; cursor:pointer" onclick="abrirBusca()">📅 Ver / Cancelar Agendamento</button>
+            </div>
+        </div>
 
-    <div id="telaBusca" class="hidden">
-        <button onclick="voltar(1)">← Voltar</button>
-        <h2>Buscar Agendamento</h2>
-        <input type="tel" id="telBusca" placeholder="(00) 00000-0000">
-        <button onclick="buscarAgendamento()">Buscar</button>
-        <div id="resBusca" class="hidden">
-            <p id="detalheAgendamento"></p>
-            <button onclick="confirmarCancelamento()" style="background:red; color:white">Excluir</button>
+        <div id="telaBusca" class="hidden">
+            <button class="btn-voltar" onclick="voltar(1)">← Voltar</button>
+            <h2>Consultar Horário</h2>
+            <input type="tel" id="telBusca" placeholder="(00) 00000-0000" oninput="mascaraTel(event)">
+            <button onclick="buscarAgendamento()" style="width:100%; padding:12px; background:var(--accent-color); color:white; border:none; border-radius:5px; cursor:pointer">Buscar</button>
+            <div id="resBusca" class="hidden" style="margin-top:20px; border:1px solid var(--border-color); padding:10px; border-radius:10px;">
+                <p id="detalheAgendamento"></p>
+                <button id="btnCanc" onclick="confirmarCancelamento()" style="width:100%; padding:10px; background:var(--error); color:white; border:none; border-radius:5px; cursor:pointer">Excluir Horário</button>
+            </div>
+        </div>
+
+        <div id="etapa2" class="hidden">
+            <button class="btn-voltar" onclick="voltar(1)">← Voltar</button>
+            <h2>Selecione o Dia</h2>
+            <div id="lista-dias" class="grid"></div>
+        </div>
+
+        <div id="etapa3" class="hidden">
+            <button class="btn-voltar" onclick="voltar(2)">← Voltar</button>
+            <h2>Horários: <span id="dia-sel"></span></h2>
+            <div id="lista-horas" class="grid"></div>
         </div>
     </div>
 
-    <div id="etapa2" class="hidden">
-        <button onclick="voltar(1)">← Voltar</button>
-        <div id="lista-dias" class="grid"></div>
+    <div id="modalConfirm" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Reserva</h3>
+            <p id="resumo" style="white-space: pre-line;"></p>
+            <input type="text" id="nome" placeholder="Seu Nome (Máx 15 letras)" maxlength="15">
+            <input type="tel" id="tel" placeholder="(00) 00000-0000" oninput="mascaraTel(event)">
+            <button id="btnFinalizar" style="width:100%; padding:12px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer" onclick="finalizar()">Confirmar</button>
+            <button onclick="fecharModal()" style="background:none; border:none; color:gray; margin-top:10px; cursor:pointer">Voltar</button>
+        </div>
     </div>
 
-    <div id="etapa3" class="hidden">
-        <button onclick="voltar(2)">← Voltar</button>
-        <div id="lista-horas" class="grid"></div>
-    </div>
-  </div>
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKYIV01GsWP6B9uwO20Yl3hc2KKRkLVZ5uNKg4BB1KEprBM-rR_PKdu7OrfZuwFjN-xw/exec";
+        let dadosAgendamento = { profissional: '', data: '', horario: '', nome: '', telefone: '' };
+        let agendamentoLocalizado = null;
 
-  <div id="modalConfirm" class="modal">
-    <div class="modal-content">
-      <p id="resumo"></p>
-      <input type="text" id="nome" placeholder="Nome" maxlength="15">
-      <input type="tel" id="tel" placeholder="Telefone">
-      <button id="btnFinalizar" onclick="finalizar()">Confirmar</button>
-      <button onclick="fecharModal()">Voltar</button>
-    </div>
-  </div>
+        function toggleTheme() {
+            const body = document.documentElement;
+            body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
+        }
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKYIV01GsWP6B9uwO20Yl3hc2KKRkLVZ5uNKg4BB1KEprBM-rR_PKdu7OrfZuwFjN-xw/exec";
-    let dados = { profissional: '', data: '', horario: '', nome: '', telefone: '' };
-    let agendamentoLocalizado = null;
+        function selecionarProf(p) {
+            dadosAgendamento.profissional = p;
+            document.getElementById('etapa1').classList.add('hidden');
+            document.getElementById('etapa2').classList.remove('hidden');
+            gerarDias();
+        }
 
-    async function API(acao, dados) {
-      const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Necessário para Google Scripts externos
-        body: JSON.stringify({ acao, dados })
-      });
-      // Como o Google no-cors não permite ler a resposta diretamente, 
-      // para buscas, o ideal é usar uma técnica de redirecionamento ou mudar para modo web app padrão.
-      // Vou simplificar o fluxo para você:
-      return {status: "Enviado"}; 
-    }
+        function gerarDias() {
+            const container = document.getElementById('lista-dias');
+            container.innerHTML = '';
+            const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            const agora = new Date();
+            for (let i = 0; i < 7; i++) {
+                let d = new Date(); d.setDate(d.getDate() + i);
+                let dataStr = d.toLocaleDateString('pt-BR');
+                let btn = document.createElement('button');
+                btn.className = 'btn-dia';
+                btn.innerHTML = `<strong>${nomesDias[d.getDay()]}</strong><br>${dataStr}`;
+                if (d.getDay() === 0) btn.disabled = true; else btn.onclick = () => selecionarDia(dataStr);
+                container.appendChild(btn);
+            }
+        }
 
-    // Adaptado para funcionar via Fetch
-    async function finalizar() {
-      const n = document.getElementById('nome').value;
-      const t = document.getElementById('tel').value;
-      if(n.length < 3 || t.length < 10) return alert("Preencha tudo");
-      
-      dados.nome = n; dados.telefone = t;
-      document.getElementById('btnFinalizar').innerText = "Enviando...";
-      
-      // No modo NO-CORS (Vercel -> Google), enviamos os dados
-      // O Google processa, e nós resetamos a tela após 2 segundos.
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ acao: 'salvar', dados: dados })
-      });
+        function selecionarDia(d) {
+            dadosAgendamento.data = d;
+            document.getElementById('dia-sel').innerText = d;
+            document.getElementById('etapa2').classList.add('hidden');
+            document.getElementById('etapa3').classList.remove('hidden');
+            
+            const container = document.getElementById('lista-horas');
+            container.innerHTML = 'Buscando...';
 
-      alert("Solicitação enviada! Verifique sua planilha em instantes.");
-      location.reload();
-    }
+            const callbackName = 'jsonp_' + Date.now();
+            window[callbackName] = function(ocupados) {
+                const horarios = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+                container.innerHTML = '';
+                horarios.forEach(h => {
+                    let btn = document.createElement('button');
+                    btn.className = 'btn-hora';
+                    btn.innerText = h;
+                    if (ocupados.includes(h)) { btn.classList.add('ocupado'); btn.disabled = true; btn.innerText += " (Ocupado)"; }
+                    else { btn.onclick = () => abrirModal(h); }
+                    container.appendChild(btn);
+                });
+                delete window[callbackName];
+            };
 
-    // --- FUNÇÕES VISUAIS (IGUAIS) ---
-    function toggleTheme() {
-      const b = document.documentElement;
-      b.getAttribute('data-theme') === 'dark' ? b.removeAttribute('data-theme') : b.setAttribute('data-theme', 'dark');
-    }
-    function selecionarProf(p) { dados.profissional = p; document.getElementById('etapa1').classList.add('hidden'); document.getElementById('etapa2').classList.remove('hidden'); gerarDias(); }
-    function voltar(e) { location.reload(); }
-    function fecharModal() { document.getElementById('modalConfirm').style.display = 'none'; }
-    // ... manter lógica de gerarDias e abrirModal ...
-  </script>
+            const script = document.createElement('script');
+            script.src = `${SCRIPT_URL}?acao=buscarOcupados&prof=${dadosAgendamento.profissional}&data=${d}&callback=${callbackName}`;
+            document.body.appendChild(script);
+        }
+
+        function abrirModal(h) {
+            dadosAgendamento.horario = h;
+            document.getElementById('resumo').innerText = `${dadosAgendamento.profissional}\n${dadosAgendamento.data} às ${h}`;
+            document.getElementById('modalConfirm').style.display = 'flex';
+        }
+
+        function finalizar() {
+            const n = document.getElementById('nome').value;
+            const t = document.getElementById('tel').value;
+            if(n.length < 3 || t.length < 14) return alert("Preencha corretamente.");
+            
+            dadosAgendamento.nome = n; dadosAgendamento.telefone = t;
+            document.getElementById('btnFinalizar').innerText = "Agendando...";
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ acao: 'salvar', dados: dadosAgendamento })
+            }).then(() => {
+                alert("Agendamento Enviado!");
+                location.reload();
+            });
+        }
+
+        function abrirBusca() { document.getElementById('etapa1').classList.add('hidden'); document.getElementById('telaBusca').classList.remove('hidden'); }
+        
+        async function buscarAgendamento() {
+            const tel = document.getElementById('telBusca').value;
+            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ acao: 'buscarAgendamento', dados: {telefone: tel} }) });
+            const json = await res.json();
+            if(json.data) {
+                agendamentoLocalizado = json.data;
+                document.getElementById('detalheAgendamento').innerText = `Olá ${json.data.cliente}!\n${json.data.data} às ${json.data.horario}\nCom: ${json.data.profissional}`;
+                document.getElementById('resBusca').classList.remove('hidden');
+            } else { alert("Não encontrado."); }
+        }
+
+        function confirmarCancelamento() {
+            if(!confirm("Excluir?")) return;
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ acao: 'cancelar', dados: {linha: agendamentoLocalizado.linha} }) })
+            .then(() => { alert("Excluído!"); location.reload(); });
+        }
+
+        function voltar(e) { location.reload(); }
+        function fecharModal() { document.getElementById('modalConfirm').style.display = 'none'; }
+        function mascaraTel(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        }
+    </script>
 </body>
 </html>
