@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barbearia Aero 💈</title>
     <style>
-        :root { --bg-body: #f4f7f6; --bg-card: #ffffff; --text-color: #333; --border-color: #ddd; --accent-color: #2c3e50; --success: #27ae60; --error: #e74c3c; }
+        :root { --bg-body: #f4f7f6; --bg-card: #ffffff; --text-color: #333; --border-color: #ddd; --accent-color: #2c3e50; --success: #27ae60; --error: #e74c3c; --wpp: #25d366; }
         [data-theme="dark"] { --bg-body: #121212; --bg-card: #1e1e1e; --text-color: #e0e0e0; --border-color: #333; --accent-color: #bb86fc; --success: #03dac6; --error: #cf6679; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; box-sizing: border-box; transition: 0.3s; }
         .container { background: var(--bg-card); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid var(--border-color); position: relative; }
         .theme-toggle { position: absolute; top: 15px; right: 15px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 8px; border-radius: 50%; cursor: pointer; font-size: 20px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; transition: 0.2s; }
+        .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .btn-hora.ocupado { background: #eee !important; color: #aaa !important; cursor: not-allowed; opacity: 0.6; }
         [data-theme="dark"] .btn-hora.ocupado { background: #333 !important; color: #666 !important; }
         .hidden { display: none; }
@@ -19,7 +19,10 @@
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .modal-content { background: var(--bg-card); padding: 25px; border-radius: 15px; width: 320px; text-align:center; }
         .btn-voltar { background: none; border: none; color: var(--accent-color); cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 16px; }
-        button:disabled { cursor: not-allowed; }
+        .btn-contato { grid-column: span 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn-contato:active { transform: scale(0.95); }
+        .bg-wpp { background-color: var(--wpp); }
+        .bg-maps { background-color: #4285F4; }
     </style>
 </head>
 <body>
@@ -28,19 +31,26 @@
 
     <div class="container">
         <div id="etapa1">
-            <h1>Barbearia Aero 💈</h1>
+            <h1 style="margin-bottom: 5px; text-align: center;">Barbearia Aero 💈</h1>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 14px; opacity: 0.8;">Belo Horizonte - MG</p>
+            
             <div class="grid">
+                <a href="https://wa.me/5531994374020" target="_blank" class="btn-contato bg-wpp">💬 WhatsApp</a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Barbearia+Aero+Belo+Horizonte" target="_blank" class="btn-contato bg-maps">📍 Localização</a>
+
+                <div class="card" style="grid-column: span 2; margin-top: 10px; background: var(--accent-color); color: white; border: none; cursor: default;">Escolha um barbeiro:</div>
                 <div class="card" onclick="selecionarProf('Fabio Garcia')">💈 Fabio Garcia</div>
                 <div class="card" onclick="selecionarProf('Profissional 2')">✂️ Profissional 2</div>
                 <div class="card" onclick="selecionarProf('Profissional 3')">✂️ Profissional 3</div>
                 <div class="card" onclick="selecionarProf('Profissional 4')">✂️ Profissional 4</div>
-                <button style="grid-column: span 2; margin-top:15px; padding:12px; cursor:pointer" onclick="abrirBusca()">📅 Ver ou Cancelar Agendamento</button>
+                
+                <button style="grid-column: span 2; margin-top:15px; padding:12px; cursor:pointer; background: none; border: 1px dashed var(--text-color); color: var(--text-color); border-radius: 10px; font-weight: bold;" onclick="abrirBusca()">📅 Ver ou Cancelar Agendamento</button>
             </div>
         </div>
 
         <div id="telaBusca" class="hidden">
             <button class="btn-voltar" onclick="voltar(1)">← Voltar</button>
-            <h2>Consultar Horário</h2>
+            <h2>Consultar Reserva</h2>
             <input type="tel" id="telBusca" placeholder="(00) 00000-0000" oninput="mascaraTel(event)">
             <button id="btnBuscando" onclick="buscarAgendamento()" style="width:100%; padding:12px; background:var(--accent-color); color:white; border:none; border-radius:5px; cursor:pointer">Buscar</button>
             <div id="resBusca" class="hidden" style="margin-top:20px; border:1px solid var(--border-color); padding:15px; border-radius:10px;">
@@ -64,11 +74,11 @@
 
     <div id="modalConfirm" class="modal">
         <div class="modal-content">
-            <h3>Confirmar Reserva</h3>
+            <h3>Confirmar Agendamento</h3>
             <p id="resumo" style="white-space: pre-line; line-height: 1.5;"></p>
-            <input type="text" id="nome" placeholder="Seu Nome (Máx 15 letras)" maxlength="15">
+            <input type="text" id="nome" placeholder="Seu Nome" maxlength="15">
             <input type="tel" id="tel" placeholder="(00) 00000-0000" oninput="mascaraTel(event)">
-            <button id="btnFinalizar" style="width:100%; padding:12px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer" onclick="finalizar()">Confirmar Horário</button>
+            <button id="btnFinalizar" style="width:100%; padding:12px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer" onclick="finalizar()">Confirmar Agora</button>
             <button onclick="fecharModal()" style="background:none; border:none; color:gray; margin-top:15px; cursor:pointer">Voltar</button>
         </div>
     </div>
@@ -113,9 +123,8 @@
             document.getElementById('dia-sel').innerText = d;
             document.getElementById('etapa2').classList.add('hidden');
             document.getElementById('etapa3').classList.remove('hidden');
-            
             const container = document.getElementById('lista-horas');
-            container.innerHTML = '<p style="grid-column: span 2; text-align:center">Buscando disponibilidade...</p>';
+            container.innerHTML = '<p style="grid-column: span 2; text-align:center">Consultando agenda...</p>';
 
             if (cacheOcupados[d]) {
                 montarGrid(cacheOcupados[d], d);
@@ -153,7 +162,7 @@
                 if (estaOcupado || jaPassou) {
                     btn.classList.add('ocupado');
                     btn.disabled = true;
-                    btn.innerText += (estaOcupado) ? " (Ocupado)" : "";
+                    if(estaOcupado) btn.innerText += " (Ocupado)";
                 } else {
                     btn.onclick = () => abrirModal(h);
                 }
@@ -163,18 +172,17 @@
 
         function abrirModal(h) {
             dadosAgendamento.horario = h;
-            document.getElementById('resumo').innerText = `Com: ${dadosAgendamento.profissional}\nDia: ${dadosAgendamento.data}\nHorário: ${h}`;
+            document.getElementById('resumo').innerText = `Barbeiro: ${dadosAgendamento.profissional}\nData: ${dadosAgendamento.data}\nHorário: ${h}`;
             document.getElementById('modalConfirm').style.display = 'flex';
         }
 
         function finalizar() {
             const n = document.getElementById('nome').value.trim();
             const t = document.getElementById('tel').value.trim();
-            if(n.length < 3 || t.length < 14) return alert("Preencha nome e telefone corretamente.");
+            if(n.length < 3 || t.length < 14) return alert("Por favor, preencha nome e telefone.");
             
             const btn = document.getElementById('btnFinalizar');
-            btn.innerText = "Agendando..."; btn.disabled = true;
-            
+            btn.innerText = "Salvando..."; btn.disabled = true;
             dadosAgendamento.nome = n; dadosAgendamento.telefone = t;
             
             fetch(SCRIPT_URL, {
@@ -182,7 +190,7 @@
                 mode: 'no-cors',
                 body: JSON.stringify({ acao: 'salvar', dados: dadosAgendamento })
             }).then(() => {
-                alert("Agendamento solicitado com sucesso!");
+                alert("Agendamento realizado! Te esperamos lá.");
                 location.reload();
             });
         }
@@ -191,30 +199,26 @@
         
         async function buscarAgendamento() {
             const tel = document.getElementById('telBusca').value;
-            if(tel.length < 14) return alert("Digite o telefone completo.");
-            
+            if(tel.length < 14) return alert("Digite o telefone com DDD.");
             document.getElementById('btnBuscando').innerText = "Buscando...";
             const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ acao: 'buscarAgendamento', dados: {telefone: tel} }) });
             const json = await res.json();
-            
             document.getElementById('btnBuscando').innerText = "Buscar";
             if(json.data) {
                 agendamentoLocalizado = json.data;
-                document.getElementById('detalheAgendamento').innerText = `Olá ${json.data.cliente}!\nSua reserva: ${json.data.data} às ${json.data.horario}\nCom: ${json.data.profissional}`;
+                document.getElementById('detalheAgendamento').innerText = `Olá ${json.data.cliente}!\nAgendado para: ${json.data.data} às ${json.data.horario}\nProfissional: ${json.data.profissional}`;
                 document.getElementById('resBusca').classList.remove('hidden');
-            } else { alert("Nenhum horário encontrado para este telefone."); }
+            } else { alert("Não encontramos nenhum agendamento."); }
         }
 
         function confirmarCancelamento() {
-            if(!confirm("Tem certeza que deseja cancelar seu horário?")) return;
-            document.getElementById('btnCanc').innerText = "Cancelando...";
+            if(!confirm("Deseja realmente cancelar este horário?")) return;
             fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ acao: 'cancelar', dados: {linha: agendamentoLocalizado.linha} }) })
-            .then(() => { alert("Horário cancelado com sucesso!"); location.reload(); });
+            .then(() => { alert("Agendamento cancelado!"); location.reload(); });
         }
 
         function voltar(e) { location.reload(); }
         function fecharModal() { document.getElementById('modalConfirm').style.display = 'none'; }
-        
         function mascaraTel(e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
