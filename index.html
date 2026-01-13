@@ -7,40 +7,26 @@
     <style>
         :root { --bg-body: #f4f7f6; --bg-card: #ffffff; --text-color: #333; --border-color: #ddd; --accent-color: #2c3e50; --success: #27ae60; --error: #e74c3c; --wpp: #25d366; }
         [data-theme="dark"] { --bg-body: #121212; --bg-card: #1e1e1e; --text-color: #e0e0e0; --border-color: #333; --accent-color: #bb86fc; --success: #03dac6; --error: #cf6679; }
-        
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; transition: 0.3s; }
-        
-        /* TELA DE CARREGAMENTO */
-        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-body); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .container { background: var(--bg-card); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid var(--border-color); position: relative; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; transition: 0.2s; }
-        .btn-hora.ocupado { background: #eee !important; color: #aaa !important; cursor: not-allowed; opacity: 0.6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 15px; min-height: 100vh; margin: 0; }
+        .container { background: var(--bg-card); padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .card, .btn-dia, .btn-hora { border: 2px solid var(--border-color); padding: 15px; text-align: center; cursor: pointer; border-radius: 10px; background: var(--bg-card); color: var(--text-color); font-weight: bold; }
+        .btn-hora.ocupado { background: #eee !important; color: #aaa !important; cursor: not-allowed; opacity: 0.6; border: none; }
         .hidden { display: none; }
-        
-        .btn-contato { grid-column: span 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 14px; margin-top: 10px; }
+        .btn-contato { grid-column: span 1; padding: 12px; border-radius: 10px; border: none; color: white; font-weight: bold; text-align: center; text-decoration: none; font-size: 14px; margin-top: 5px; }
         .bg-wpp { background-color: var(--wpp); }
         .bg-maps { background-color: #4285F4; }
-        
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-color); box-sizing: border-box; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-content { background: var(--bg-card); padding: 25px; border-radius: 15px; width: 320px; text-align:center; }
+        .modal-content { background: var(--bg-card); padding: 25px; border-radius: 15px; width: 90%; max-width: 320px; text-align:center; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: bold;">Carregando Agenda...</p>
-    </div>
-
     <div class="container">
         <div id="etapa1">
             <h1 style="text-align: center; margin-bottom: 5px;">Barbearia Aero 💈</h1>
-            <p style="text-align: center; font-size: 13px; opacity: 0.7;">Selecione um profissional para agendar:</p>
+            <p style="text-align: center; font-size: 14px; opacity: 0.8;">Agendamento Online</p>
             
             <div class="grid">
                 <div class="card" onclick="selecionarProf('Fabio Garcia')">💈 Fabio Garcia</div>
@@ -56,44 +42,49 @@
         </div>
 
         <div id="etapa2" class="hidden">
-            <button onclick="location.reload()" style="cursor:pointer; background:none; border:none; color:var(--accent-color); font-weight:bold;">← Voltar</button>
+            <button onclick="voltar(1)" style="cursor:pointer; background:none; border:none; color:var(--accent-color); font-weight:bold; padding: 10px 0;">← Voltar</button>
             <h2>Selecione o Dia</h2>
             <div id="lista-dias" class="grid"></div>
         </div>
 
         <div id="etapa3" class="hidden">
-            <button onclick="voltarEtapa2()" style="cursor:pointer; background:none; border:none; color:var(--accent-color); font-weight:bold;">← Voltar</button>
+            <button onclick="voltar(2)" style="cursor:pointer; background:none; border:none; color:var(--accent-color); font-weight:bold; padding: 10px 0;">← Voltar</button>
             <h2>Horários: <span id="dia-sel"></span></h2>
-            <div id="lista-horas" class="grid"></div>
+            <div id="lista-horas" class="grid">
+                <p id="msg-load" style="grid-column: span 2; text-align: center; padding: 20px;">Verificando agenda...</p>
+            </div>
         </div>
     </div>
 
     <div id="modalConfirm" class="modal">
         <div class="modal-content">
-            <h3>Confirmar Agendamento</h3>
+            <h3>Confirmar!</h3>
             <p id="resumo" style="white-space: pre-line; margin-bottom:15px;"></p>
             <input type="text" id="nome" placeholder="Seu Nome">
             <input type="tel" id="tel" placeholder="(31) 90000-0000" oninput="mascaraTel(event)">
             <button id="btnFinalizar" style="width:100%; padding:12px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer" onclick="finalizar()">Confirmar</button>
-            <button onclick="fecharModal()" style="margin-top:10px; background:none; border:none; color:gray; cursor:pointer">Cancelar</button>
+            <button onclick="fecharModal()" style="margin-top:10px; background:none; border:none; color:gray; cursor:pointer">Voltar</button>
         </div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKYIV01GsWP6B9uwO20Yl3hc2KKRkLVZ5uNKg4BB1KEprBM-rR_PKdu7OrfZuwFjN-xw/exec";
-        let agendaGlobal = [];
+        let agendaGlobal = null; 
         let dadosAgendamento = { profissional: '', data: '', horario: '' };
 
-        // CARREGAMENTO ANTECIPADO
-        window.onload = function() {
+        // BUSCA A AGENDA EM SEGUNDO PLANO LOGO QUE ABRE
+        (function() {
             const script = document.createElement('script');
-            script.src = `${SCRIPT_URL}?callback=carregarAgenda`;
+            script.src = `${SCRIPT_URL}?callback=receberDados`;
             document.body.appendChild(script);
-        };
+        })();
 
-        function carregarAgenda(dados) {
+        function receberDados(dados) {
             agendaGlobal = dados;
-            document.getElementById('loading-screen').style.display = 'none';
+            // Se o usuário já estiver na tela de horários, atualiza ela na hora
+            if(!document.getElementById('etapa3').classList.contains('hidden')) {
+                montarHorarios(dadosAgendamento.data);
+            }
         }
 
         function selecionarProf(p) {
@@ -108,11 +99,11 @@
             container.innerHTML = '';
             for (let i = 0; i < 7; i++) {
                 let d = new Date(); d.setDate(d.getDate() + i);
-                if (d.getDay() === 0) continue; // Pula Domingo
+                if (d.getDay() === 0) continue;
                 let dataStr = d.toLocaleDateString('pt-BR');
                 let btn = document.createElement('button');
                 btn.className = 'btn-dia';
-                btn.innerHTML = dataStr;
+                btn.innerText = dataStr;
                 btn.onclick = () => {
                     dadosAgendamento.data = dataStr;
                     document.getElementById('dia-sel').innerText = dataStr;
@@ -126,6 +117,13 @@
 
         function montarHorarios(dataEscolha) {
             const container = document.getElementById('lista-horas');
+            
+            // SE AINDA NÃO RECEBEU OS DADOS DO GOOGLE, MOSTRA O AVISO
+            if (agendaGlobal === null) {
+                container.innerHTML = '<p style="grid-column: span 2; text-align: center; padding: 20px;">Sincronizando com a planilha... (Pode demorar um pouco no primeiro acesso)</p>';
+                return;
+            }
+
             const lista = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
             container.innerHTML = '';
             
@@ -133,9 +131,7 @@
                 let btn = document.createElement('button');
                 btn.className = 'btn-hora';
                 btn.innerText = h;
-                
                 let ocupado = agendaGlobal.some(a => a.prof === dadosAgendamento.profissional && a.data === dataEscolha && a.hora === h);
-                
                 if (ocupado) {
                     btn.classList.add('ocupado');
                     btn.disabled = true;
@@ -143,7 +139,7 @@
                 } else {
                     btn.onclick = () => {
                         dadosAgendamento.horario = h;
-                        document.getElementById('resumo').innerText = `${dadosAgendamento.profissional}\n${dataEscolha} às ${h}`;
+                        document.getElementById('resumo').innerText = `Barbeiro: ${dadosAgendamento.profissional}\nData: ${dataEscolha}\nHorário: ${h}`;
                         document.getElementById('modalConfirm').style.display = 'flex';
                     };
                 }
@@ -154,21 +150,16 @@
         function finalizar() {
             const n = document.getElementById('nome').value;
             const t = document.getElementById('tel').value;
-            if(!n || t.length < 14) return alert("Preencha os dados corretamente.");
-
-            document.getElementById('btnFinalizar').innerText = "Agendando...";
+            if(!n || t.length < 14) return alert("Preencha Nome e Telefone!");
+            document.getElementById('btnFinalizar').innerText = "Salvando...";
             fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
+                method: 'POST', mode: 'no-cors',
                 body: JSON.stringify({ acao: 'salvar', dados: {...dadosAgendamento, nome: n, telefone: t} })
-            }).then(() => {
-                alert("Agendado com sucesso!");
-                location.reload();
-            });
+            }).then(() => { alert("Agendado!"); location.reload(); });
         }
 
+        function voltar(e) { location.reload(); }
         function fecharModal() { document.getElementById('modalConfirm').style.display = 'none'; }
-        function voltarEtapa2() { document.getElementById('etapa3').classList.add('hidden'); document.getElementById('etapa2').classList.remove('hidden'); }
         function mascaraTel(e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
