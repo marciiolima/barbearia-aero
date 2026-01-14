@@ -29,14 +29,10 @@
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); box-sizing: border-box; font-size: 16px; }
         
+        /* Estilo Admin */
         .input-bloqueado { opacity: 0.5; cursor: not-allowed; background: #f0f0f0 !important; }
         [data-theme="dark"] .input-bloqueado { background: #2a2a2a !important; }
-        
         .btn-edit { background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; padding: 5px; width: 30px; height: 30px; font-size: 14px; color: var(--text); }
-
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 15px; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
-
         .admin-item { border-bottom: 2px solid var(--border); padding: 15px 0; text-align: left; font-size: 14px; }
         .adm-controls { display: flex; gap: 5px; margin-top: 10px; }
         .btn-adm { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; flex: 1; }
@@ -46,6 +42,7 @@
         
         .dia-semana { font-size: 11px; font-weight: normal; opacity: 0.7; margin-top: 4px; text-transform: capitalize; }
         .prof-info { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: block; }
+        .resumo-final { background: var(--bg); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: left; font-size: 15px; line-height: 1.6; }
     </style>
 </head>
 <body data-theme="light">
@@ -64,13 +61,11 @@
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 5'})">✂️ Barbeiro 5</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 6'})">✂️ Barbeiro 6</div>
             </div>
-
             <div class="footer-btns">
                 <a href="https://wa.me/5531994374020" target="_blank" class="link-btn" style="background: var(--wpp)">WhatsApp</a>
-                <a href="https://www.google.com/maps?q=Barbearia+Aero" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
+                <a href="https://www.google.com/maps/search/Barbearia+Aero" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
             </div>
-
-            <button onclick="abrirCancelamento()" class="btn-cancelar-antigo">📅 Ver ou Cancelar Agendamento</button>
+            <button onclick="next('Cancelamento')" class="btn-cancelar-antigo">📅 Ver ou Cancelar Agendamento</button>
             <button onclick="abrirAdmin()" style="width:100%; margin-top:25px; background:none; border:none; color:gray; font-size:11px; cursor:pointer; text-decoration: underline;">Acesso Administrativo</button>
         </div>
 
@@ -86,6 +81,15 @@
             <span class="prof-info" id="prof-selecionado-hora"></span>
             <h3>Horários para: <br><span id="label-dia" style="color:var(--accent)"></span></h3>
             <div id="horas-grid" class="grid"></div>
+        </div>
+
+        <div id="etapa4" class="hidden">
+            <button onclick="back(3)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <h3>Finalizar Agendamento</h3>
+            <div class="resumo-final" id="resumo-agendamento"></div>
+            <input type="text" id="nome" placeholder="Seu Nome" maxlength="20">
+            <input type="tel" id="tel" placeholder="Seu Telefone (00) 00000-0000" maxlength="15" oninput="mask(this)">
+            <button class="btn" style="width:100%; background:var(--accent); color:white; margin-top:15px; border:none; padding:18px;" onclick="confirmarAgendamento()">Confirmar Agendamento</button>
         </div>
 
         <div id="telaAdmin" class="hidden">
@@ -104,20 +108,209 @@
         </div>
     </div>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h3>Finalizar Agendamento</h3>
-            <p id="m-desc" style="font-size: 14px; white-space: pre-line; margin-bottom: 15px;"></p>
-            <input type="text" id="nome" placeholder="Seu Nome" maxlength="20">
-            <input type="tel" id="tel" placeholder="(00) 00000-0000" maxlength="15" oninput="mask(this)">
-            <button style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;" onclick="confirmarAgendamento()">Confirmar Agora</button>
-            <button onclick="closeModal()" style="background:none; border:none; margin-top:15px; color:gray; cursor:pointer;">Cancelar</button>
-        </div>
-    </div>
-
     <script>
         const SB_URL = "https://xeykdymdgmbznsfnzmzo.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleWtkeW1kZ21iem5zZm56bXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNDM4NjcsImV4cCI6MjA4MzkxOTg2N30.rVqecqNNO8pzY6zT7PGE_8wGSf-Y1XUOrL3Khfn1c0k";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        let state = { prof: '', data
+        let state = { prof: '', data: '', dataExtenso: '', hora: '' };
+
+        function formatarMoeda(input) {
+            let v = input.value.replace(/\D/g, '');
+            v = (v / 100).toFixed(2).replace('.', ',');
+            v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            input.value = "R$ " + v;
+        }
+
+        function mask(i) {
+            let v = i.value.replace(/\D/g,'');
+            if (v.length > 0) v = "(" + v;
+            if (v.length > 3) v = v.slice(0, 3) + ") " + v.slice(3);
+            if (v.length > 10) v = v.slice(0, 10) + "-" + v.slice(10);
+            i.value = v.slice(0, 15);
+        }
+
+        function toggleTheme() {
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+
+        function next(step, d = {}) {
+            state = {...state, ...d};
+            document.querySelectorAll('.container > div').forEach(div => div.id && div.classList.add('hidden'));
+            
+            if(step === 'Cancelamento') {
+                document.getElementById('telaCancelamento').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('etapa' + step).classList.remove('hidden');
+            
+            if(state.prof) {
+                document.getElementById('prof-selecionado-dia').innerText = `Profissional: ${state.prof}`;
+                document.getElementById('prof-selecionado-hora').innerText = `Profissional: ${state.prof}`;
+            }
+            if(step === 2) renderDias();
+            if(step === 3) renderHoras();
+            if(step === 4) {
+                document.getElementById('resumo-agendamento').innerHTML = `
+                    <b>Profissional:</b> ${state.prof}<br>
+                    <b>Data:</b> ${state.data} (${state.dataExtenso})<br>
+                    <b>Horário:</b> ${state.hora}h
+                `;
+            }
+        }
+
+        function back(step) { next(step); }
+
+        function renderDias() {
+            const g = document.getElementById('dias-grid'); g.innerHTML = '';
+            const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+            const agora = new Date();
+            const iniciarEm = (agora.getHours() >= 20) ? 1 : 0;
+            for(let i = iniciarEm; i < (iniciarEm + 7); i++){
+                let d = new Date(); d.setDate(d.getDate() + i);
+                let df = d.toLocaleDateString('pt-BR');
+                let nd = diasSemana[d.getDay()];
+                g.innerHTML += `<div class="card" onclick="next(3, {data: '${df}', dataExtenso: '${nd}'})">${df}<span class="dia-semana">${nd}</span></div>`;
+            }
+        }
+
+        async function renderHoras() {
+            document.getElementById('label-dia').innerText = `${state.data} (${state.dataExtenso})`;
+            const g = document.getElementById('horas-grid'); g.innerHTML = 'Buscando...';
+            const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data', state.data).eq('profissional', state.prof);
+            const agora = new Date();
+            const hojeStr = agora.toLocaleDateString('pt-BR');
+            const hAtual = agora.getHours();
+            const mAtual = agora.getMinutes();
+            g.innerHTML = '';
+            const horas = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+            horas.forEach(h => {
+                const isOcupado = ocupados?.some(o => o.horario === h);
+                const hInt = parseInt(h.split(':')[0]);
+                const jaPassou = (state.data === hojeStr && (hInt < hAtual || (hInt === hAtual && mAtual > 5)));
+                if (isOcupado || jaPassou) g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
+                else g.innerHTML += `<div class="card btn-hora" onclick="next(4, {hora: '${h}'})">${h}</div>`;
+            });
+        }
+
+        async function confirmarAgendamento() {
+            const n = document.getElementById('nome').value;
+            const t = document.getElementById('tel').value;
+            if(!n || t.length < 14) return alert("Preencha Nome e Telefone corretamente!");
+            
+            const { error } = await _supabase.from('agendamentos').insert([{ 
+                profissional: state.prof, 
+                data: state.data, 
+                horario: state.hora, 
+                cliente: n, 
+                telefone: t 
+            }]);
+
+            if(!error) {
+                alert("Agendamento confirmado com sucesso!");
+                location.reload();
+            } else {
+                alert("Erro ao agendar. Tente novamente.");
+            }
+        }
+
+        async function abrirAdmin() {
+            const s = prompt("Senha:"); if(s !== "4020") return;
+            document.getElementById('etapa1').classList.add('hidden');
+            document.getElementById('telaAdmin').classList.remove('hidden');
+            document.getElementById('filtro-data-admin').value = new Date().toISOString().split('T')[0];
+            carregarListaAdmin();
+        }
+
+        async function carregarListaAdmin() {
+            const lista = document.getElementById('lista-admin');
+            const dVal = document.getElementById('filtro-data-admin').value;
+            const dFormat = dVal.split('-').reverse().join('/');
+            const { data } = await _supabase.from('agendamentos').select('*').eq('data', dFormat).order('horario', {ascending: true});
+            lista.innerHTML = '';
+            data.forEach(item => {
+                const preenchido = item.valor && item.pagamento;
+                lista.innerHTML += `
+                    <div class="admin-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>${item.horario} - ${item.cliente}</b>
+                            <button class="btn-edit" onclick="habilitarEdicao(${item.id})">✎</button>
+                        </div>
+                        <span style="font-size:12px; opacity:0.8">Profissional: ${item.profissional}</span>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+                            <input type="text" id="val-${item.id}" value="${item.valor || ''}" oninput="formatarMoeda(this)" placeholder="Valor R$" 
+                                class="${preenchido ? 'input-bloqueado' : ''}" ${preenchido ? 'disabled' : ''}>
+                            <select id="pay-${item.id}" class="${preenchido ? 'input-bloqueado' : ''}" ${preenchido ? 'disabled' : ''}>
+                                <option value="">Tipo...</option>
+                                <option value="Dinheiro" ${item.pagamento==='Dinheiro'?'selected':''}>Dinheiro</option>
+                                <option value="Pix" ${item.pagamento==='Pix'?'selected':''}>Pix</option>
+                                <option value="Crédito" ${item.pagamento==='Crédito'?'selected':''}>Crédito</option>
+                                <option value="Débito" ${item.pagamento==='Débito'?'selected':''}>Débito</option>
+                                <option value="FALTOU" ${item.pagamento==='FALTOU'?'selected':''}>FALTOU</option>
+                            </select>
+                        </div>
+                        <div class="adm-controls">
+                            <button class="btn-adm btn-miss" onclick="marcarFalta(${item.id})">Faltou</button>
+                            <button class="btn-adm btn-save" onclick="salvarAtendimento(${item.id})">Salvar</button>
+                            <button class="btn-adm btn-cancel" onclick="cancelarID(${item.id})">Excluir</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function habilitarEdicao(id) {
+            document.getElementById(`val-${id}`).disabled = false;
+            document.getElementById(`pay-${id}`).disabled = false;
+            document.getElementById(`val-${id}`).classList.remove('input-bloqueado');
+            document.getElementById(`pay-${id}`).classList.remove('input-bloqueado');
+        }
+
+        async function salvarAtendimento(id) {
+            const v = document.getElementById(`val-${id}`).value;
+            const p = document.getElementById(`pay-${id}`).value;
+            if(!v || !p) return alert("Preencha valor e pagamento!");
+            await _supabase.from('agendamentos').update({ valor: v, pagamento: p }).eq('id', id);
+            alert("Salvo!");
+            carregarListaAdmin();
+        }
+
+        async function marcarFalta(id) {
+            document.getElementById(`val-${id}`).disabled = false;
+            document.getElementById(`pay-${id}`).disabled = false;
+            document.getElementById(`val-${id}`).value = "R$ 0,00";
+            document.getElementById(`pay-${id}`).value = "FALTOU";
+            salvarAtendimento(id);
+        }
+
+        async function exportar10Dias() {
+            const { data } = await _supabase.from('agendamentos').select('*').order('id', {ascending: false});
+            let csv = "data:text/csv;charset=utf-8,\uFEFFData;Hora;Profissional;Cliente;Valor;Pagamento\n";
+            data.slice(0, 300).forEach(r => {
+                csv += `${r.data};${r.horario};${r.profissional};${r.cliente};${(r.valor||'0').replace('R$ ','')};${r.pagamento||'-'}\n`;
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csv));
+            link.setAttribute("download", "financeiro.csv");
+            link.click();
+        }
+
+        async function cancelarID(id) {
+            if(confirm("Excluir agendamento?")) { await _supabase.from('agendamentos').delete().eq('id', id); carregarListaAdmin(); }
+        }
+
+        async function buscarAgendamentosCliente() {
+            const tel = document.getElementById('telBusca').value;
+            if(tel.length < 14) return alert("Digite o telefone completo.");
+            const { data } = await _supabase.from('agendamentos').select('*').eq('telefone', tel);
+            const lista = document.getElementById('lista-cliente');
+            lista.innerHTML = '';
+            if(data.length === 0) lista.innerHTML = '<p style="text-align:center; opacity:0.6">Nenhum agendamento encontrado.</p>';
+            data?.forEach(item => {
+                lista.innerHTML += `<div class="admin-item"><b>${item.data} às ${item.horario}</b><br>Profissional: ${item.profissional}<br><button class="btn-adm btn-cancel" onclick="cancelarID(${item.id})">Cancelar</button></div>`;
+            });
+        }
+    </script>
+</body>
+</html>
