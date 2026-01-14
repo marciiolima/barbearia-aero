@@ -10,33 +10,36 @@
         [data-theme="dark"] { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #bb86fc; --border: #333; }
         
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; transition: 0.3s; min-height: 100vh; }
-        .container { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border: 1px solid var(--border); box-sizing: border-box; position: relative; }
+        .container { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; position: relative; border: 1px solid var(--border); box-sizing: border-box; }
         
         .theme-toggle { position: absolute; top: 15px; right: 15px; background: none; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; padding: 8px; color: var(--text); font-size: 18px; }
         
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .card { border: 1px solid var(--border); padding: 15px; border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .card, .btn { border: 1px solid var(--border); padding: 15px; border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .card:hover { border-color: var(--accent); }
         
-        .btn-cancelar-principal { width: 100%; margin-top: 20px; background: none; border: 2px solid var(--error); color: var(--error); padding: 14px; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .btn-cancelar-principal:hover { background: var(--error); color: white; }
+        /* BOTÃO DE CANCELAMENTO MODELO ANTIGO */
+        .btn-cancelar-antigo { width: 100%; margin-top: 20px; background: none; border: 1px dashed var(--border); color: var(--text); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
+        .btn-hora.ocupado { background: #eee; color: #aaa; cursor: not-allowed; opacity: 0.5; border: none; }
+        [data-theme="dark"] .btn-hora.ocupado { background: #2a2a2a; color: #555; }
+        
         .hidden { display: none; }
+        .footer-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .link-btn { flex: 1; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; color: white; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); box-sizing: border-box; font-size: 16px; }
         
-        /* Estilos Admin */
-        .admin-item { border-bottom: 2px solid var(--border); padding: 15px 0; font-size: 14px; }
+        .admin-item { border-bottom: 2px solid var(--border); padding: 15px 0; text-align: left; font-size: 14px; }
         .adm-controls { display: flex; gap: 5px; margin-top: 10px; }
         .btn-adm { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; flex: 1; }
         .btn-cancel { background: var(--error); }
         .btn-miss { background: var(--gold); }
         .btn-save { background: var(--success); }
         
+        .dia-semana { font-size: 11px; font-weight: normal; opacity: 0.7; margin-top: 4px; text-transform: capitalize; }
         .prof-info { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: block; }
         .filtro-secao { background: rgba(0,0,0,0.03); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
-        
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 15px; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body data-theme="light">
@@ -55,13 +58,32 @@
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 5'})">✂️ Barbeiro 5</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 6'})">✂️ Barbeiro 6</div>
             </div>
-            <button onclick="abrirCancelamento()" class="btn-cancelar-principal">📅 Ver ou Cancelar Agendamento</button>
+            <div class="footer-btns">
+                <a href="https://wa.me/5531994374020" target="_blank" class="link-btn" style="background: var(--wpp)">WhatsApp</a>
+                <a href="http://googleusercontent.com/maps.google.com" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
+            </div>
+            
+            <button onclick="abrirCancelamento()" class="btn-cancelar-antigo">📅 Ver ou Cancelar Agendamento</button>
+            
             <button onclick="abrirAdmin()" style="width:100%; margin-top:25px; background:none; border:none; color:gray; font-size:11px; cursor:pointer; text-decoration: underline;">Acesso Administrativo</button>
+        </div>
+
+        <div id="etapa2" class="hidden">
+            <button onclick="back(1)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <span class="prof-info" id="prof-selecionado-dia"></span>
+            <h3>Selecione o Dia:</h3>
+            <div id="dias-grid" class="grid"></div>
+        </div>
+
+        <div id="etapa3" class="hidden">
+            <button onclick="back(2)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <span class="prof-info" id="prof-selecionado-hora"></span>
+            <h3>Horários para: <br><span id="label-dia" style="color:var(--accent)"></span></h3>
+            <div id="horas-grid" class="grid"></div>
         </div>
 
         <div id="telaAdmin" class="hidden">
             <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Sair</button>
-            
             <button class="btn-save" onclick="exportar10Dias()" style="width:100%; padding:12px; border-radius:10px; margin-bottom:15px; border:none; cursor:pointer; font-weight:bold;">📊 Baixar Relatório (Últimos 10 dias)</button>
 
             <div class="filtro-secao">
@@ -69,7 +91,15 @@
                 <input type="date" id="filtro-data-admin" onchange="carregarListaAdmin()">
             </div>
 
-            <div id="lista-admin">Carregando...</div>
+            <div id="lista-admin">Selecione uma data para gerenciar.</div>
+        </div>
+
+        <div id="telaCancelamento" class="hidden">
+            <button onclick="back(1)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
+            <h3>Meus Agendamentos</h3>
+            <input type="tel" id="telBusca" placeholder="Telefone (00) 00000-0000" maxlength="15" oninput="mask(this)">
+            <button class="btn" style="width:100%; background:var(--accent); color:white; margin-top:5px; border:none;" onclick="buscarAgendamentosCliente()">Buscar</button>
+            <div id="lista-cliente" style="margin-top:20px;"></div>
         </div>
     </div>
 
@@ -78,9 +108,8 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhleWtkeW1kZ21iem5zZm56bXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNDM4NjcsImV4cCI6MjA4MzkxOTg2N30.rVqecqNNO8pzY6zT7PGE_8wGSf-Y1XUOrL3Khfn1c0k";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- FUNÇÕES DE FORMATAÇÃO ---
+        let state = { prof: '', data: '', dataExtenso: '', hora: '' };
 
-        // Máscara de Moeda (R$ 0,00)
         function formatarMoeda(input) {
             let v = input.value.replace(/\D/g, '');
             v = (v / 100).toFixed(2).replace('.', ',');
@@ -93,9 +122,62 @@
             b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
 
+        function mask(i) {
+            let v = i.value.replace(/\D/g,'');
+            if (v.length > 0) v = "(" + v;
+            if (v.length > 3) v = v.slice(0, 3) + ") " + v.slice(3);
+            if (v.length > 10) v = v.slice(0, 10) + "-" + v.slice(10);
+            i.value = v.slice(0, 15);
+        }
+
+        function next(step, d = {}) {
+            state = {...state, ...d};
+            document.querySelectorAll('.container > div').forEach(div => div.id && div.classList.add('hidden'));
+            document.getElementById('etapa' + step).classList.remove('hidden');
+            if(state.prof) {
+                document.getElementById('prof-selecionado-dia').innerText = `Profissional: ${state.prof}`;
+                document.getElementById('prof-selecionado-hora').innerText = `Profissional: ${state.prof}`;
+            }
+            if(step === 2) renderDias();
+            if(step === 3) renderHoras();
+        }
+
+        function back(step) { next(step); }
+
+        function renderDias() {
+            const g = document.getElementById('dias-grid'); g.innerHTML = '';
+            const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+            const agora = new Date();
+            for(let i=0; i < 7; i++){
+                let d = new Date(); d.setDate(d.getDate() + i);
+                let df = d.toLocaleDateString('pt-BR');
+                let nd = diasSemana[d.getDay()];
+                g.innerHTML += `<div class="card" onclick="next(3, {data: '${df}', dataExtenso: '${nd}'})">${df}<span class="dia-semana">${nd}</span></div>`;
+            }
+        }
+
+        async function renderHoras() {
+            const g = document.getElementById('horas-grid'); g.innerHTML = 'Carregando...';
+            const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data', state.data).eq('profissional', state.prof);
+            g.innerHTML = '';
+            const horas = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+            horas.forEach(h => {
+                const isOcupado = ocupados?.some(o => o.horario === h);
+                if (isOcupado) g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
+                else g.innerHTML += `<div class="card btn-hora" onclick="confirmarAuto('${h}')">${h}</div>`;
+            });
+        }
+
+        async function confirmarAuto(h) {
+            const n = prompt("Seu Nome:");
+            const t = prompt("Seu Telefone (00) 00000-0000:");
+            if(!n || t.length < 14) return alert("Dados inválidos!");
+            await _supabase.from('agendamentos').insert([{ profissional: state.prof, data: state.data, horario: h, cliente: n, telefone: t }]);
+            alert("Agendado!"); location.reload();
+        }
+
         async function abrirAdmin() {
-            const s = prompt("Senha Admin:");
-            if(s !== "4020") return alert("Incorreta!");
+            const s = prompt("Senha:"); if(s !== "1234") return;
             document.getElementById('etapa1').classList.add('hidden');
             document.getElementById('telaAdmin').classList.remove('hidden');
             document.getElementById('filtro-data-admin').value = new Date().toISOString().split('T')[0];
@@ -106,25 +188,16 @@
             const lista = document.getElementById('lista-admin');
             const dVal = document.getElementById('filtro-data-admin').value;
             const dFormat = dVal.split('-').reverse().join('/');
-
-            lista.innerHTML = 'Buscando...';
             const { data } = await _supabase.from('agendamentos').select('*').eq('data', dFormat).order('horario', {ascending: true});
-
             lista.innerHTML = '';
             data.forEach(item => {
-                const isBlock = item.cliente === "BLOQUEADO";
-                if(isBlock) return;
-                
                 lista.innerHTML += `
                     <div class="admin-item">
                         <b>${item.horario} - ${item.cliente}</b> (${item.profissional})
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
-                            <input type="text" placeholder="R$ 0,00" id="val-${item.id}" 
-                                value="${item.valor || ''}" 
-                                oninput="formatarMoeda(this)" 
-                                style="margin:0; font-size:14px;">
-                            <select id="pay-${item.id}" style="margin:0; font-size:12px;">
-                                <option value="">Pagamento...</option>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
+                            <input type="text" id="val-${item.id}" value="${item.valor || ''}" oninput="formatarMoeda(this)" placeholder="Valor R$">
+                            <select id="pay-${item.id}">
+                                <option value="">Tipo...</option>
                                 <option value="Dinheiro" ${item.pagamento==='Dinheiro'?'selected':''}>Dinheiro</option>
                                 <option value="Pix" ${item.pagamento==='Pix'?'selected':''}>Pix</option>
                                 <option value="Crédito" ${item.pagamento==='Crédito'?'selected':''}>Crédito</option>
@@ -145,49 +218,44 @@
             const v = document.getElementById(`val-${id}`).value;
             const p = document.getElementById(`pay-${id}`).value;
             await _supabase.from('agendamentos').update({ valor: v, pagamento: p }).eq('id', id);
-            alert("Salvo com sucesso!");
+            alert("Salvo!");
         }
 
         async function marcarFalta(id) {
-            if(confirm("Confirmar falta?")) {
-                document.getElementById(`val-${id}`).value = "R$ 0,00";
-                document.getElementById(`pay-${id}`).value = "FALTOU";
-                salvarAtendimento(id);
-            }
+            document.getElementById(`val-${id}`).value = "R$ 0,00";
+            document.getElementById(`pay-${id}`).value = "FALTOU";
+            salvarAtendimento(id);
         }
 
         async function exportar10Dias() {
             const { data } = await _supabase.from('agendamentos').select('*').order('id', {ascending: false});
-            
-            // \uFEFF garante que o Excel abra com acentuação correta
-            let csv = "data:text/csv;charset=utf-8,\uFEFF";
-            csv += "Data;Hora;Profissional;Cliente;Valor;Pagamento\n";
-
+            let csv = "data:text/csv;charset=utf-8,\uFEFFData;Hora;Profissional;Cliente;Valor;Pagamento\n";
             data.slice(0, 300).forEach(r => {
-                // Remove o "R$ " para facilitar cálculos no Excel, mantendo o formato numérico
-                const valorLimpo = (r.valor || "0").replace("R$ ", "");
-                csv += `${r.data};${r.horario};${r.profissional};${r.cliente};${valorLimpo};${r.pagamento || '-'}\n`;
+                csv += `${r.data};${r.horario};${r.profissional};${r.cliente};${(r.valor||'0').replace('R$ ','')};${r.pagamento||'-'}\n`;
             });
-
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", "financeiro_barbearia.csv");
-            document.body.appendChild(link);
+            link.setAttribute("download", "financeiro.csv");
             link.click();
-            document.body.removeChild(link);
         }
 
         async function cancelarID(id) {
-            if(confirm("Excluir definitivamente?")) {
-                await _supabase.from('agendamentos').delete().eq('id', id);
-                carregarListaAdmin();
-            }
+            if(confirm("Excluir?")) { await _supabase.from('agendamentos').delete().eq('id', id); carregarListaAdmin(); }
         }
-        
-        // Outras funções de navegação mantidas do código anterior...
-        function next(step, d = {}) {
+
+        function abrirCancelamento() {
             document.getElementById('etapa1').classList.add('hidden');
-            alert("Acesse o ADM para ver os novos campos de moeda!");
+            document.getElementById('telaCancelamento').classList.remove('hidden');
+        }
+
+        async function buscarAgendamentosCliente() {
+            const tel = document.getElementById('telBusca').value;
+            const { data } = await _supabase.from('agendamentos').select('*').eq('telefone', tel);
+            const lista = document.getElementById('lista-cliente');
+            lista.innerHTML = '';
+            data?.forEach(item => {
+                lista.innerHTML += `<div class="admin-item"><b>${item.data} às ${item.horario}</b><br>Profissional: ${item.profissional}<br><button class="btn-adm btn-cancel" onclick="cancelarID(${item.id})">Cancelar</button></div>`;
+            });
         }
     </script>
 </body>
