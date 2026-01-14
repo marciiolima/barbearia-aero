@@ -43,6 +43,9 @@
         .dia-semana { font-size: 11px; font-weight: normal; opacity: 0.7; margin-top: 4px; text-transform: capitalize; }
         .prof-info { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 5px; display: block; }
         .resumo-final { background: var(--bg); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: left; font-size: 15px; line-height: 1.6; }
+
+        /* Estilo exclusivo para a área de bloqueio */
+        .admin-lock-area { background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
     </style>
 </head>
 <body data-theme="light">
@@ -94,6 +97,31 @@
 
         <div id="telaAdmin" class="hidden">
             <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Sair</button>
+            
+            <div class="admin-lock-area">
+                <h4 style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 5px;">🔒 Bloquear Horário (Almoço/Folga)</h4>
+                <select id="lock-prof">
+                    <option value="Fabio Garcia">Fabio Garcia</option>
+                    <option value="Barbeiro 2">Barbeiro 2</option>
+                    <option value="Barbeiro 3">Barbeiro 3</option>
+                    <option value="Barbeiro 4">Barbeiro 4</option>
+                    <option value="Barbeiro 5">Barbeiro 5</option>
+                    <option value="Barbeiro 6">Barbeiro 6</option>
+                </select>
+                <div style="display: flex; gap: 5px;">
+                    <input type="date" id="lock-date">
+                    <select id="lock-hour">
+                        <option value="09:00">09:00</option><option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option><option value="12:00">12:00</option>
+                        <option value="13:00">13:00</option><option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option><option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option><option value="18:00">18:00</option>
+                        <option value="19:00">19:00</option>
+                    </select>
+                </div>
+                <button class="btn-adm btn-miss" style="width: 100%; margin-top: 10px; height: 40px; font-size: 14px;" onclick="bloquearHorarioManual()">Bloquear Agora</button>
+            </div>
+
             <button class="btn-save" onclick="exportar10Dias()" style="width:100%; padding:12px; border-radius:10px; margin-bottom:15px; border:none; cursor:pointer; font-weight:bold;">📊 Baixar Relatório (Últimos 10 dias)</button>
             <input type="date" id="filtro-data-admin" onchange="carregarListaAdmin()">
             <div id="lista-admin">Selecione uma data.</div>
@@ -221,6 +249,7 @@
             document.getElementById('etapa1').classList.add('hidden');
             document.getElementById('telaAdmin').classList.remove('hidden');
             document.getElementById('filtro-data-admin').value = new Date().toISOString().split('T')[0];
+            document.getElementById('lock-date').value = new Date().toISOString().split('T')[0];
             carregarListaAdmin();
         }
 
@@ -232,13 +261,15 @@
             lista.innerHTML = '';
             data.forEach(item => {
                 const preenchido = item.valor && item.pagamento;
+                const isBloqueio = item.cliente.includes("🚫");
                 lista.innerHTML += `
-                    <div class="admin-item">
+                    <div class="admin-item" style="${isBloqueio ? 'background: #fff3f3; padding: 10px; border-radius: 8px;' : ''}">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <b>${item.horario} - ${item.cliente}</b>
-                            <button class="btn-edit" onclick="habilitarEdicao(${item.id})">✎</button>
+                            ${!isBloqueio ? `<button class="btn-edit" onclick="habilitarEdicao(${item.id})">✎</button>` : ''}
                         </div>
                         <span style="font-size:12px; opacity:0.8">Profissional: ${item.profissional}</span>
+                        ${!isBloqueio ? `
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
                             <input type="text" id="val-${item.id}" value="${item.valor || ''}" oninput="formatarMoeda(this)" placeholder="Valor R$" 
                                 class="${preenchido ? 'input-bloqueado' : ''}" ${preenchido ? 'disabled' : ''}>
@@ -250,14 +281,37 @@
                                 <option value="Débito" ${item.pagamento==='Débito'?'selected':''}>Débito</option>
                                 <option value="FALTOU" ${item.pagamento==='FALTOU'?'selected':''}>FALTOU</option>
                             </select>
-                        </div>
+                        </div>` : ''}
                         <div class="adm-controls">
+                            ${!isBloqueio ? `
                             <button class="btn-adm btn-miss" onclick="marcarFalta(${item.id})">Faltou</button>
-                            <button class="btn-adm btn-save" onclick="salvarAtendimento(${item.id})">Salvar</button>
-                            <button class="btn-adm btn-cancel" onclick="cancelarID(${item.id})">Excluir</button>
+                            <button class="btn-adm btn-save" onclick="salvarAtendimento(${item.id})">Salvar</button>` : ''}
+                            <button class="btn-adm btn-cancel" onclick="cancelarID(${item.id})">${isBloqueio ? 'Desbloquear' : 'Excluir'}</button>
                         </div>
                     </div>`;
             });
+        }
+
+        // LÓGICA DE BLOQUEIO MANUAL
+        async function bloquearHorarioManual() {
+            const prof = document.getElementById('lock-prof').value;
+            const dataCrua = document.getElementById('lock-date').value;
+            const hora = document.getElementById('lock-hour').value;
+            if (!dataCrua) return alert("Selecione a data para bloquear.");
+            const dataFormatada = dataCrua.split('-').reverse().join('/');
+            
+            const { error } = await _supabase.from('agendamentos').insert([{ 
+                profissional: prof, data: dataFormatada, horario: hora, 
+                cliente: "🚫 HORÁRIO BLOQUEADO", telefone: "00000000000",
+                pagamento: "BLOQUEIO", valor: "R$ 0,00"
+            }]);
+
+            if (!error) {
+                alert("Bloqueado!");
+                carregarListaAdmin();
+            } else {
+                alert("Este horário já está ocupado.");
+            }
         }
 
         function habilitarEdicao(id) {
@@ -297,7 +351,7 @@
         }
 
         async function cancelarID(id) {
-            if(confirm("Excluir agendamento?")) { await _supabase.from('agendamentos').delete().eq('id', id); carregarListaAdmin(); }
+            if(confirm("Deseja remover este registro?")) { await _supabase.from('agendamentos').delete().eq('id', id); carregarListaAdmin(); }
         }
 
         async function buscarAgendamentosCliente() {
