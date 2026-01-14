@@ -45,12 +45,14 @@
         
         <div id="etapa1">
             <h1 style="text-align: center; margin-bottom: 5px;">Barbearia Aero 💈</h1>
-            <p style="text-align: center; opacity: 0.8; font-size: 16px; font-weight: bold; margin-bottom: 20px;">Escolha seu barbeiro</p>
+            <p style="text-align: center; opacity: 0.8; font-size: 16px; font-weight: bold; margin-bottom: 20px;">Escolha seu barbeiro:</p>
             <div class="grid">
                 <div class="card" onclick="next(2, {prof: 'Fabio Garcia'})">💈 Fabio Garcia</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 2'})">✂️ Barbeiro 2</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 3'})">✂️ Barbeiro 3</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 4'})">✂️ Barbeiro 4</div>
+                <div class="card" onclick="next(2, {prof: 'Barbeiro 5'})">✂️ Barbeiro 5</div>
+                <div class="card" onclick="next(2, {prof: 'Barbeiro 6'})">✂️ Barbeiro 6</div>
             </div>
             <div class="footer-btns">
                 <a href="https://wa.me/5531994374020" target="_blank" class="link-btn" style="background: var(--wpp)">WhatsApp</a>
@@ -93,6 +95,8 @@
                     <option value="Barbeiro 2">Barbeiro 2</option>
                     <option value="Barbeiro 3">Barbeiro 3</option>
                     <option value="Barbeiro 4">Barbeiro 4</option>
+                    <option value="Barbeiro 5">Barbeiro 5</option>
+                    <option value="Barbeiro 6">Barbeiro 6</option>
                 </select>
                 <input type="date" id="adm-data">
                 <select id="adm-hora">
@@ -163,7 +167,14 @@
         function renderDias() {
             const g = document.getElementById('dias-grid'); g.innerHTML = '';
             const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-            for(let i=0; i<7; i++){
+            
+            // LÓGICA DE 20:00 HORAS
+            const agora = new Date();
+            const horaAtual = agora.getHours();
+            // Se for 20h ou mais, mostra 8 dias (hoje + 7), caso contrário mostra 7 dias (hoje + 6)
+            const limiteDias = (horaAtual >= 20) ? 8 : 7;
+
+            for(let i=0; i < limiteDias; i++){
                 let d = new Date(); d.setDate(d.getDate() + i);
                 let df = d.toLocaleDateString('pt-BR');
                 let nd = diasSemana[d.getDay()];
@@ -265,4 +276,3 @@
     </script>
 </body>
 </html>
-
