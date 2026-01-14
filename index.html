@@ -29,6 +29,12 @@
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); box-sizing: border-box; font-size: 16px; }
         
+        /* Estilo para campos bloqueados no Admin */
+        .input-bloqueado { opacity: 0.5; cursor: not-allowed; background: #f0f0f0 !important; }
+        [data-theme="dark"] .input-bloqueado { background: #2a2a2a !important; }
+        
+        .btn-edit { background: none; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; padding: 5px 8px; font-size: 14px; margin-left: 5px; color: var(--text); }
+
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 15px; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
 
@@ -50,7 +56,6 @@
         
         <div id="etapa1">
             <h1 style="text-align: center; margin-bottom: 5px;">Barbearia Aero 💈</h1>
-            <p style="text-align: center; opacity: 0.8; font-size: 16px; font-weight: bold; margin-bottom: 20px;">Escolha seu profissional:</p>
             <div class="grid">
                 <div class="card" onclick="next(2, {prof: 'Fabio Garcia'})">💈 Fabio Garcia</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 2'})">✂️ Barbeiro 2</div>
@@ -58,10 +63,6 @@
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 4'})">✂️ Barbeiro 4</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 5'})">✂️ Barbeiro 5</div>
                 <div class="card" onclick="next(2, {prof: 'Barbeiro 6'})">✂️ Barbeiro 6</div>
-            </div>
-            <div class="footer-btns">
-                <a href="https://wa.me/5531994374020" target="_blank" class="link-btn" style="background: var(--wpp)">WhatsApp</a>
-                <a href="https://maps.google.com" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
             </div>
             <button onclick="abrirCancelamento()" class="btn-cancelar-antigo">📅 Ver ou Cancelar Agendamento</button>
             <button onclick="abrirAdmin()" style="width:100%; margin-top:25px; background:none; border:none; color:gray; font-size:11px; cursor:pointer; text-decoration: underline;">Acesso Administrativo</button>
@@ -153,10 +154,7 @@
             const g = document.getElementById('dias-grid'); g.innerHTML = '';
             const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
             const agora = new Date();
-            
-            // REGRA: SE PASSOU DAS 20H, PULA O DIA DE HOJE E MOSTRA ATÉ O DIA 20
             const iniciarEm = (agora.getHours() >= 20) ? 1 : 0;
-            
             for(let i = iniciarEm; i < (iniciarEm + 7); i++){
                 let d = new Date(); d.setDate(d.getDate() + i);
                 let df = d.toLocaleDateString('pt-BR');
@@ -169,27 +167,18 @@
             document.getElementById('label-dia').innerText = `${state.data} (${state.dataExtenso})`;
             const g = document.getElementById('horas-grid'); g.innerHTML = 'Buscando...';
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data', state.data).eq('profissional', state.prof);
-            
             const agora = new Date();
             const hojeStr = agora.toLocaleDateString('pt-BR');
             const hAtual = agora.getHours();
             const mAtual = agora.getMinutes();
-
             g.innerHTML = '';
             const horas = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
-            
             horas.forEach(h => {
                 const isOcupado = ocupados?.some(o => o.horario === h);
                 const hInt = parseInt(h.split(':')[0]);
-                
-                // REGRA: SE FOR HOJE, BLOQUEIA HORÁRIOS QUE JÁ PASSARAM
                 const jaPassou = (state.data === hojeStr && (hInt < hAtual || (hInt === hAtual && mAtual > 5)));
-
-                if (isOcupado || jaPassou) {
-                    g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
-                } else {
-                    g.innerHTML += `<div class="card btn-hora" onclick="openModal('${h}')">${h}</div>`;
-                }
+                if (isOcupado || jaPassou) g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
+                else g.innerHTML += `<div class="card btn-hora" onclick="openModal('${h}')">${h}</div>`;
             });
         }
 
@@ -210,7 +199,7 @@
         }
 
         async function abrirAdmin() {
-            const s = prompt("Senha:"); if(s !== "4020") return;
+            const s = prompt("Senha:"); if(s !== "1234") return;
             document.getElementById('etapa1').classList.add('hidden');
             document.getElementById('telaAdmin').classList.remove('hidden');
             document.getElementById('filtro-data-admin').value = new Date().toISOString().split('T')[0];
@@ -224,12 +213,18 @@
             const { data } = await _supabase.from('agendamentos').select('*').eq('data', dFormat).order('horario', {ascending: true});
             lista.innerHTML = '';
             data.forEach(item => {
+                const preenchido = item.valor && item.pagamento;
                 lista.innerHTML += `
                     <div class="admin-item">
-                        <b>${item.horario} - ${item.cliente}</b> (${item.profissional})
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>${item.horario} - ${item.cliente}</b>
+                            <button class="btn-edit" onclick="habilitarEdicao(${item.id})">✎</button>
+                        </div>
+                        <span style="font-size:12px; opacity:0.8">Profissional: ${item.profissional}</span>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:5px;">
-                            <input type="text" id="val-${item.id}" value="${item.valor || ''}" oninput="formatarMoeda(this)" placeholder="Valor R$">
-                            <select id="pay-${item.id}">
+                            <input type="text" id="val-${item.id}" value="${item.valor || ''}" oninput="formatarMoeda(this)" placeholder="Valor R$" 
+                                class="${preenchido ? 'input-bloqueado' : ''}" ${preenchido ? 'disabled' : ''}>
+                            <select id="pay-${item.id}" class="${preenchido ? 'input-bloqueado' : ''}" ${preenchido ? 'disabled' : ''}>
                                 <option value="">Tipo...</option>
                                 <option value="Dinheiro" ${item.pagamento==='Dinheiro'?'selected':''}>Dinheiro</option>
                                 <option value="Pix" ${item.pagamento==='Pix'?'selected':''}>Pix</option>
@@ -247,14 +242,25 @@
             });
         }
 
+        function habilitarEdicao(id) {
+            document.getElementById(`val-${id}`).disabled = false;
+            document.getElementById(`pay-${id}`).disabled = false;
+            document.getElementById(`val-${id}`).classList.remove('input-bloqueado');
+            document.getElementById(`pay-${id}`).classList.remove('input-bloqueado');
+        }
+
         async function salvarAtendimento(id) {
             const v = document.getElementById(`val-${id}`).value;
             const p = document.getElementById(`pay-${id}`).value;
+            if(!v || !p) return alert("Preencha valor e pagamento!");
             await _supabase.from('agendamentos').update({ valor: v, pagamento: p }).eq('id', id);
             alert("Salvo!");
+            carregarListaAdmin(); // Recarrega para bloquear os campos novamente
         }
 
         async function marcarFalta(id) {
+            document.getElementById(`val-${id}`).disabled = false;
+            document.getElementById(`pay-${id}`).disabled = false;
             document.getElementById(`val-${id}`).value = "R$ 0,00";
             document.getElementById(`pay-${id}`).value = "FALTOU";
             salvarAtendimento(id);
