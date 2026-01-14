@@ -29,11 +29,9 @@
         
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); box-sizing: border-box; font-size: 16px; }
         
-        /* Modal de Agendamento */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 15px; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
 
-        /* Admin Styles */
         .admin-item { border-bottom: 2px solid var(--border); padding: 15px 0; text-align: left; font-size: 14px; }
         .adm-controls { display: flex; gap: 5px; margin-top: 10px; }
         .btn-adm { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; flex: 1; }
@@ -63,7 +61,7 @@
             </div>
             <div class="footer-btns">
                 <a href="https://wa.me/5531994374020" target="_blank" class="link-btn" style="background: var(--wpp)">WhatsApp</a>
-                <a href="https://www.google.com/maps" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
+                <a href="https://maps.google.com" target="_blank" class="link-btn" style="background: #4285F4">Localização</a>
             </div>
             <button onclick="abrirCancelamento()" class="btn-cancelar-antigo">📅 Ver ou Cancelar Agendamento</button>
             <button onclick="abrirAdmin()" style="width:100%; margin-top:25px; background:none; border:none; color:gray; font-size:11px; cursor:pointer; text-decoration: underline;">Acesso Administrativo</button>
@@ -83,19 +81,19 @@
             <div id="horas-grid" class="grid"></div>
         </div>
 
+        <div id="telaAdmin" class="hidden">
+            <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Sair</button>
+            <button class="btn-save" onclick="exportar10Dias()" style="width:100%; padding:12px; border-radius:10px; margin-bottom:15px; border:none; cursor:pointer; font-weight:bold;">📊 Baixar Relatório (Últimos 10 dias)</button>
+            <input type="date" id="filtro-data-admin" onchange="carregarListaAdmin()">
+            <div id="lista-admin">Selecione uma data.</div>
+        </div>
+
         <div id="telaCancelamento" class="hidden">
             <button onclick="back(1)" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Voltar</button>
             <h3>Meus Agendamentos</h3>
             <input type="tel" id="telBusca" placeholder="Seu Telefone (00) 00000-0000" maxlength="15" oninput="mask(this)">
             <button class="btn" style="width:100%; background:var(--accent); color:white; margin-top:5px; border:none;" onclick="buscarAgendamentosCliente()">Buscar</button>
             <div id="lista-cliente" style="margin-top:20px;"></div>
-        </div>
-
-        <div id="telaAdmin" class="hidden">
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer; padding:10px 0;">← Sair</button>
-            <button class="btn-save" onclick="exportar10Dias()" style="width:100%; padding:12px; border-radius:10px; margin-bottom:15px; border:none; cursor:pointer; font-weight:bold;">📊 Baixar Relatório (Últimos 10 dias)</button>
-            <input type="date" id="filtro-data-admin" onchange="carregarListaAdmin()">
-            <div id="lista-admin">Selecione uma data.</div>
         </div>
     </div>
 
@@ -124,17 +122,17 @@
             input.value = "R$ " + v;
         }
 
-        function toggleTheme() {
-            const b = document.body;
-            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-        }
-
         function mask(i) {
             let v = i.value.replace(/\D/g,'');
             if (v.length > 0) v = "(" + v;
             if (v.length > 3) v = v.slice(0, 3) + ") " + v.slice(3);
             if (v.length > 10) v = v.slice(0, 10) + "-" + v.slice(10);
             i.value = v.slice(0, 15);
+        }
+
+        function toggleTheme() {
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
 
         function next(step, d = {}) {
@@ -154,7 +152,12 @@
         function renderDias() {
             const g = document.getElementById('dias-grid'); g.innerHTML = '';
             const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-            for(let i=0; i < 7; i++){
+            const agora = new Date();
+            
+            // REGRA: SE PASSOU DAS 20H, PULA O DIA DE HOJE E MOSTRA ATÉ O DIA 20
+            const iniciarEm = (agora.getHours() >= 20) ? 1 : 0;
+            
+            for(let i = iniciarEm; i < (iniciarEm + 7); i++){
                 let d = new Date(); d.setDate(d.getDate() + i);
                 let df = d.toLocaleDateString('pt-BR');
                 let nd = diasSemana[d.getDay()];
@@ -166,12 +169,27 @@
             document.getElementById('label-dia').innerText = `${state.data} (${state.dataExtenso})`;
             const g = document.getElementById('horas-grid'); g.innerHTML = 'Buscando...';
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data', state.data).eq('profissional', state.prof);
+            
+            const agora = new Date();
+            const hojeStr = agora.toLocaleDateString('pt-BR');
+            const hAtual = agora.getHours();
+            const mAtual = agora.getMinutes();
+
             g.innerHTML = '';
             const horas = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+            
             horas.forEach(h => {
                 const isOcupado = ocupados?.some(o => o.horario === h);
-                if (isOcupado) g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
-                else g.innerHTML += `<div class="card btn-hora" onclick="openModal('${h}')">${h}</div>`;
+                const hInt = parseInt(h.split(':')[0]);
+                
+                // REGRA: SE FOR HOJE, BLOQUEIA HORÁRIOS QUE JÁ PASSARAM
+                const jaPassou = (state.data === hojeStr && (hInt < hAtual || (hInt === hAtual && mAtual > 5)));
+
+                if (isOcupado || jaPassou) {
+                    g.innerHTML += `<div class="card btn-hora ocupado">${h}</div>`;
+                } else {
+                    g.innerHTML += `<div class="card btn-hora" onclick="openModal('${h}')">${h}</div>`;
+                }
             });
         }
 
@@ -188,8 +206,7 @@
             const t = document.getElementById('tel').value;
             if(!n || t.length < 14) return alert("Preencha Nome e Telefone!");
             await _supabase.from('agendamentos').insert([{ profissional: state.prof, data: state.data, horario: state.hora, cliente: n, telefone: t }]);
-            alert("Agendado com sucesso!");
-            location.reload();
+            alert("Agendado!"); location.reload();
         }
 
         async function abrirAdmin() {
